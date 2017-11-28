@@ -9,7 +9,7 @@ public class SummerMybatisGeneratorDemoApplicationTests {
     @Test
     public void testGenerate() throws Exception {
 
-        String basePackageName = "com.nextyu.spring.transaction.demo";
+        String basePackageName = "com.nextyu.demo";
 
         Generator.newGenerator()
                 .ip("127.0.0.1").port("3306").db("test")
