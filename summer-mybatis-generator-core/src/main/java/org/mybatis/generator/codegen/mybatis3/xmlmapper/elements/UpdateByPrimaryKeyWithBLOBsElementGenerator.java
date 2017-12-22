@@ -67,20 +67,37 @@ public class UpdateByPrimaryKeyWithBLOBsElementGenerator extends
         sb.setLength(0);
         sb.append("set "); //$NON-NLS-1$
 
+        boolean hasVersionColumn = false;
+        boolean firstEntry = true;
+
         Iterator<IntrospectedColumn> iter = ListUtilities.removeGeneratedAlwaysColumns(introspectedTable
                 .getNonPrimaryKeyColumns()).iterator();
         while (iter.hasNext()) {
             IntrospectedColumn introspectedColumn = iter.next();
 
-            sb.append(MyBatis3FormattingUtilities
-                    .getEscapedColumnName(introspectedColumn));
-            sb.append(" = "); //$NON-NLS-1$
-            sb.append(MyBatis3FormattingUtilities
-                    .getParameterClause(introspectedColumn));
+            String escapedColumnName = MyBatis3FormattingUtilities
+                    .getEscapedColumnName(introspectedColumn);
 
+            if ("version".equals(escapedColumnName)) {
+                hasVersionColumn = true;
+            }
+
+            if (hasVersionColumn && firstEntry) {
+                sb.append("version = version + 1");
+                firstEntry = false;
+            } else {
+
+                sb.append(MyBatis3FormattingUtilities
+                        .getEscapedColumnName(introspectedColumn));
+                sb.append(" = "); //$NON-NLS-1$
+                sb.append(MyBatis3FormattingUtilities
+                        .getParameterClause(introspectedColumn));
+            }
             if (iter.hasNext()) {
                 sb.append(',');
             }
+
+
 
             answer.addElement(new TextElement(sb.toString()));
 
@@ -107,6 +124,12 @@ public class UpdateByPrimaryKeyWithBLOBsElementGenerator extends
             sb.append(" = "); //$NON-NLS-1$
             sb.append(MyBatis3FormattingUtilities
                     .getParameterClause(introspectedColumn));
+
+
+            if (hasVersionColumn) {
+                sb.append("  and version = #{version}");
+            }
+
             answer.addElement(new TextElement(sb.toString()));
         }
 

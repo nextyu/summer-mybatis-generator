@@ -1,17 +1,17 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2006-2016 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
@@ -26,15 +26,13 @@ import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 
 /**
- * 
  * @author Jeff Butler
- * 
  */
 public class UpdateByPrimaryKeyWithoutBLOBsElementGenerator extends
         AbstractXmlElementGenerator {
 
     private boolean isSimple;
-    
+
     public UpdateByPrimaryKeyWithoutBLOBsElementGenerator(boolean isSimple) {
         super();
         this.isSimple = isSimple;
@@ -66,14 +64,30 @@ public class UpdateByPrimaryKeyWithoutBLOBsElementGenerator extends
         } else {
             iter = ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getBaseColumns()).iterator();
         }
+
+        boolean hasVersionColumn = false;
+        boolean firstEntry = true;
+
         while (iter.hasNext()) {
             IntrospectedColumn introspectedColumn = iter.next();
 
-            sb.append(MyBatis3FormattingUtilities
-                    .getEscapedColumnName(introspectedColumn));
-            sb.append(" = "); //$NON-NLS-1$
-            sb.append(MyBatis3FormattingUtilities
-                    .getParameterClause(introspectedColumn));
+            String escapedColumnName = MyBatis3FormattingUtilities
+                    .getEscapedColumnName(introspectedColumn);
+
+            if ("version".equals(escapedColumnName)) {
+                hasVersionColumn = true;
+            }
+
+            if (hasVersionColumn && firstEntry) {
+                sb.append("version = version + 1");
+                firstEntry = false;
+            } else {
+                sb.append(MyBatis3FormattingUtilities
+                        .getEscapedColumnName(introspectedColumn));
+                sb.append(" = "); //$NON-NLS-1$
+                sb.append(MyBatis3FormattingUtilities
+                        .getParameterClause(introspectedColumn));
+            }
 
             if (iter.hasNext()) {
                 sb.append(',');
@@ -104,6 +118,11 @@ public class UpdateByPrimaryKeyWithoutBLOBsElementGenerator extends
             sb.append(" = "); //$NON-NLS-1$
             sb.append(MyBatis3FormattingUtilities
                     .getParameterClause(introspectedColumn));
+
+            if (hasVersionColumn) {
+                sb.append("  and version = #{version}");
+            }
+
             answer.addElement(new TextElement(sb.toString()));
         }
 
