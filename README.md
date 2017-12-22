@@ -29,5 +29,14 @@
 
 ## 历史版本
 
+- 1.0.1
+    - 修改UpdateXXElementGenerator源码，加入版本号(version)判断再更新数据，xml 生成效果如下
+
+```
+update XX
+    set version = version + 1
+    where id = #{id}  and version = #{version}
+```    
+
 - 1.0.0
     - 基本功能实现

@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.nextyu</groupId>
         <artifactId>summer-mybatis-generator</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
 
